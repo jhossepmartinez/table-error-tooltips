@@ -17,7 +17,7 @@ const validateDuplicatedNameAge: Validator = (data) => {
     const seen = new Map<string, number>(); // Use a map to track the first occurrence index
     const updatedData = [...data]; // Create a mutable copy of the input array
 
-    updatedData.forEach((record, index) => {
+    return data.map((record, index) => {
         const errors: Record<string, string[]> = {};
         const key = `${record.name}-${record.age}`;
 
@@ -47,13 +47,11 @@ const validateDuplicatedNameAge: Validator = (data) => {
         }
 
         // Update the current record
-        updatedData[index] = {
+        return updatedData[index] = {
             ...record,
             errors: { ...record.errors, ...errors }
         };
     });
-
-    return updatedData;
 };
 
 // Validator for Jhossep's age
