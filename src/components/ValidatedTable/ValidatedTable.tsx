@@ -53,6 +53,8 @@ export const ValidatedTable = ({validators, dataSource, columnProperties}: {vali
 
     validatedData.sort((a, b) => Object.keys(b.errors || {}).length - Object.keys(a.errors || {}).length)
 
+    console.log("initialData", dataSource)
+
     console.log("validatedData", validatedData)
 
     const dataWithoutErrors = validatedData.filter((record) => Object.keys(record.errors || {}).length === 0)
