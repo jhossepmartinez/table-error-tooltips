@@ -8,22 +8,15 @@ type EnrichedDataSource = DataSource & {
     errors?: Record<string, string []>; // Add errors field to the row type
 };
 
-const validateRepeatedNameAge = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
-    console.log("validateRecords2 data:", data);
+// Validator for repeated name and age
+// Validator for repeated name and age
+const validateRepeatedNameAgeErrors = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
     const seen = new Map<string, number>(); // Use a map to track the first occurrence index
     const updatedData = [...data]; // Create a mutable copy of the input array
 
     updatedData.forEach((record, index) => {
         const errors: Record<string, string[]> = {};
         const key = `${record.name}-${record.age}`;
-
-        // Validator for Jhossep's age
-        if (record.name === 'Jhossep' && record.age !== '22') {
-            if (!errors.name) errors.name = [];
-            if (!errors.age) errors.age = [];
-            errors.name.push("Jhossep needs to be 22");
-            errors.age.push("Jhossep needs to be 22");
-        }
 
         if (seen.has(key)) {
             const firstIndex = seen.get(key)!;
@@ -60,10 +53,49 @@ const validateRepeatedNameAge = (data: EnrichedDataSource[]): EnrichedDataSource
     return updatedData;
 };
 
+// Validator for Jhossep's age
+const validateJhossepAgeErrors = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
+    return data.map(record => {
+        const errors: Record<string, string[]> = { ...record.errors };
 
+        if (record.name === 'Jhossep' && record.age !== '22') {
+            if (!errors.name) errors.name = [];
+            if (!errors.age) errors.age = [];
+            errors.name.push("Jhossep needs to be 22");
+            errors.age.push("Jhossep needs to be 22");
+        }
 
+        return {
+            ...record,
+            errors
+        };
+    });
+};
 
+// Validator for name capitalization
+const validateNameCapitalization = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
+    return data.map(record => {
+        const errors: Record<string, string[]> = { ...record.errors };
 
+        if (record.name && typeof record.name === "string" && record.name[0] !== record.name[0].toUpperCase()) {
+            if (!errors.name) errors.name = [];
+            errors.name.push("Name needs to be Capitalized");
+        }
+
+        return {
+            ...record,
+            errors
+        };
+    });
+};
+
+// Combined validation
+const validateData = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
+    let updatedData = validateRepeatedNameAgeErrors(data);
+    updatedData = validateJhossepAgeErrors(updatedData);
+    updatedData = validateNameCapitalization(updatedData);
+    return updatedData;
+};
 
 function App() {
     const columnNames = ['name', 'age', 'address'];
@@ -84,14 +116,9 @@ function App() {
                         </Tooltip>
                     ) }
                 </>
-
-            )
+            );
         }
-
-    }))
-
-
-
+    }));
 
     const dataSource = [
         {
@@ -108,7 +135,7 @@ function App() {
         },
         {
             key: '3',
-            name: 'Mike',
+            name: 'mike',
             age: '32',
             address: '10 Downing Street',
         },
@@ -121,13 +148,13 @@ function App() {
         {
             key: '5',
             name: 'Jhossep',
-            age: '23',
+            age: '22',
             address: '456 Oak Avenue',
         },
         {
             key: '6',
             name: 'Jhossep',
-            age: '22',
+            age: '30',
             address: '789 Pine Road',
         },
         {
@@ -144,7 +171,7 @@ function App() {
         },
         {
             key: '9',
-            name: 'Sanwich',
+            name: 'sanwich',
             age: '90',
             address: '789 Pine Road',
         },
@@ -162,29 +189,21 @@ function App() {
         },
         {
             key: '12',
-            name: 'Jhossep',
-            age: '22',
-            address: '789 Pine Road',
-        },
-        {
-            key: '13',
-            name: 'Jhossep',
-            age: '23',
+            name: 'sanwich',
+            age: '90',
             address: '789 Pine Road',
         },
     ];
 
-    const updatedSourceData = validateRepeatedNameAge(dataSource);
+    const updatedSourceData = validateData(dataSource);
     console.log("updatedSourceData:", updatedSourceData);
-
-    const updatedSourceData2 = validateRepeatedNameAge(updatedSourceData);
-    console.log("updatedSourceData2:", updatedSourceData2);
 
     return (
         <div> 
             <Table columns={columns} dataSource={updatedSourceData}></Table>
         </div>
-    )
+    );
 }
 
-export default App
+export default App;
+
