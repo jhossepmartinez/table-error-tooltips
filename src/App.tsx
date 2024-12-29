@@ -64,6 +64,7 @@ const validateRepeatedNameAge = (data: EnrichedDataSource[]): EnrichedDataSource
 
 
 
+
 function App() {
     const columnNames = ['name', 'age', 'address'];
     const columns = columnNames.map((name) => ({
@@ -120,7 +121,7 @@ function App() {
         {
             key: '5',
             name: 'Jhossep',
-            age: '22',
+            age: '23',
             address: '456 Oak Avenue',
         },
         {
@@ -158,7 +159,19 @@ function App() {
             name: 'Openhauser',
             age: '22',
             address: '789 Pine Road',
-        }
+        },
+        {
+            key: '12',
+            name: 'Jhossep',
+            age: '22',
+            address: '789 Pine Road',
+        },
+        {
+            key: '13',
+            name: 'Jhossep',
+            age: '23',
+            address: '789 Pine Road',
+        },
     ];
 
     const updatedSourceData = validateRepeatedNameAge(dataSource);
