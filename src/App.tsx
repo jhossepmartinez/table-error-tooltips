@@ -3,16 +3,17 @@ import './App.css';
 // import { CloseCircleOutlined } from '@ant-design/icons';
 import { ValidatedTable } from './components/ValidatedTable/ValidatedTable';
 import tempData from "./temp.json"
+import {  Validator } from './components/types';
 
-type DataSource = Record<string, string | Record<string, string []>>
+// type DataSource = Record<string, string | Record<string, string []>>
+//
+// type EnrichedDataSource = DataSource & {
+//     errors?: Record<string, string[]>;
+// };
+//
+// type Validator = (data: EnrichedDataSource[]) => EnrichedDataSource[];
 
-type EnrichedDataSource = DataSource & {
-    errors?: Record<string, string[]>;
-};
-
-type Validator = (data: EnrichedDataSource[]) => EnrichedDataSource[];
-
-const validateRepeatedNameAgeErrors: Validator = (data) => {
+const validateDuplicatedNameAge: Validator = (data) => {
     const seen = new Map<string, number>(); // Use a map to track the first occurrence index
     const updatedData = [...data]; // Create a mutable copy of the input array
 
@@ -92,18 +93,33 @@ const validateNameCapitalization: Validator = (data) => {
 };
 
 // Combined validation
-const validateData = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
-    const validators: Validator[] = [
-        validateRepeatedNameAgeErrors,
-        validateJhossepAgeErrors,
-        validateNameCapitalization,
-    ];
-
-    return validators.reduce((validatedData, validator) => validator(validatedData), data);
-};
+// const validateData = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
+//     const validators: Validator[] = [
+//         validateRepeatedNameAgeErrors,
+//         validateJhossepAgeErrors,
+//         validateNameCapitalization,
+//     ];
+//
+//     return validators.reduce((validatedData, validator) => validator(validatedData), data);
+// };
 
 function App() {
-    const columnNames = ['name', 'age', 'address'];
+    // const columnNames = ['name', 'age', 'address'];
+    const columnProperties = [
+        {
+            name: "name",
+            isRequired: true,
+        },
+        {
+            name: "age",
+            isRequired: true,
+        },
+        {
+            name: "address",
+            isRequired: false,
+        }
+    ]
+
     // const columns = columnNames.map((name) => ({
     //     title: name,
     //     dataIndex: name,
@@ -201,11 +217,11 @@ function App() {
     // ];
     //
     const dataSource = tempData
-    const updatedSourceData = validateData(dataSource);
-    console.log("updatedSourceData:", updatedSourceData);
+    // const updatedSourceData = validateData(dataSource);
+    // console.log("updatedSourceData:", updatedSourceData);
 
     return (
-        <ValidatedTable dataSource={dataSource} validators={[validateRepeatedNameAgeErrors, validateJhossepAgeErrors, validateNameCapitalization]} columnNames={columnNames} />
+        <ValidatedTable dataSource={dataSource} validators={[validateDuplicatedNameAge, validateJhossepAgeErrors, validateNameCapitalization]} columnProperties={columnProperties} />
     );
 }
 
