@@ -1,16 +1,18 @@
-import { Table, Tooltip } from 'antd';
-import './App.css'
-import { CloseCircleOutlined } from '@ant-design/icons';
+// import { Table, Tooltip } from 'antd';
+import './App.css';
+// import { CloseCircleOutlined } from '@ant-design/icons';
+import { ValidatedTable } from './components/ValidatedTable/ValidatedTable';
+import tempData from "./temp.json"
 
 type DataSource = Record<string, string | Record<string, string []>>
 
 type EnrichedDataSource = DataSource & {
-    errors?: Record<string, string []>; // Add errors field to the row type
+    errors?: Record<string, string[]>;
 };
 
-// Validator for repeated name and age
-// Validator for repeated name and age
-const validateRepeatedNameAgeErrors = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
+type Validator = (data: EnrichedDataSource[]) => EnrichedDataSource[];
+
+const validateRepeatedNameAgeErrors: Validator = (data) => {
     const seen = new Map<string, number>(); // Use a map to track the first occurrence index
     const updatedData = [...data]; // Create a mutable copy of the input array
 
@@ -54,7 +56,7 @@ const validateRepeatedNameAgeErrors = (data: EnrichedDataSource[]): EnrichedData
 };
 
 // Validator for Jhossep's age
-const validateJhossepAgeErrors = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
+const validateJhossepAgeErrors: Validator = (data) => {
     return data.map(record => {
         const errors: Record<string, string[]> = { ...record.errors };
 
@@ -73,7 +75,7 @@ const validateJhossepAgeErrors = (data: EnrichedDataSource[]): EnrichedDataSourc
 };
 
 // Validator for name capitalization
-const validateNameCapitalization = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
+const validateNameCapitalization: Validator = (data) => {
     return data.map(record => {
         const errors: Record<string, string[]> = { ...record.errors };
 
@@ -91,117 +93,119 @@ const validateNameCapitalization = (data: EnrichedDataSource[]): EnrichedDataSou
 
 // Combined validation
 const validateData = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
-    let updatedData = validateRepeatedNameAgeErrors(data);
-    updatedData = validateJhossepAgeErrors(updatedData);
-    updatedData = validateNameCapitalization(updatedData);
-    return updatedData;
+    const validators: Validator[] = [
+        validateRepeatedNameAgeErrors,
+        validateJhossepAgeErrors,
+        validateNameCapitalization,
+    ];
+
+    return validators.reduce((validatedData, validator) => validator(validatedData), data);
 };
 
 function App() {
     const columnNames = ['name', 'age', 'address'];
-    const columns = columnNames.map((name) => ({
-        title: name,
-        dataIndex: name,
-        render: (text: string, record: EnrichedDataSource) => {
-            const errors = record.errors && record.errors[name]?.join("\n") || null;
-            return (
-                <>
-                    {text}
-                    {" "}
-                    { errors && (
-                        <Tooltip title={<span style={{ whiteSpace: 'pre-wrap' }}>
-                            {errors}
-                        </span>}>
-                            <CloseCircleOutlined style={{ color: "Red"}} />
-                        </Tooltip>
-                    ) }
-                </>
-            );
-        }
-    }));
+    // const columns = columnNames.map((name) => ({
+    //     title: name,
+    //     dataIndex: name,
+    //     render: (text: string, record: EnrichedDataSource) => {
+    //         const errors = record.errors && record.errors[name]?.join("\n") || null;
+    //         return (
+    //             <>
+    //                 {text}
+    //                 {" "}
+    //                 { errors && (
+    //                     <Tooltip title={<span style={{ whiteSpace: 'pre-wrap' }}>
+    //                         {errors}
+    //                     </span>}>
+    //                         <CloseCircleOutlined style={{ color: "Red"}} />
+    //                     </Tooltip>
+    //                 ) }
+    //             </>
+    //         );
+    //     }
+    // }));
 
-    const dataSource = [
-        {
-            key: '1',
-            name: 'Mike Wasowski',
-            age: '32',
-            address: '10 Downing Street',
-        },
-        {
-            key: '2',
-            name: 'Mike',
-            age: '32',
-            address: '10 Downing Street',
-        },
-        {
-            key: '3',
-            name: 'mike',
-            age: '32',
-            address: '10 Downing Street',
-        },
-        {
-            key: '4',
-            name: 'mike',
-            age: '10',
-            address: '123 Elm Street',
-        },
-        {
-            key: '5',
-            name: 'Jhossep',
-            age: '22',
-            address: '456 Oak Avenue',
-        },
-        {
-            key: '6',
-            name: 'Jhossep',
-            age: '30',
-            address: '789 Pine Road',
-        },
-        {
-            key: '7',
-            name: 'Ricardo',
-            age: '10',
-            address: '789 Pine Road',
-        },
-        {
-            key: '8',
-            name: 'Mauricio',
-            age: '78',
-            address: '789 Pine Road',
-        },
-        {
-            key: '9',
-            name: 'sanwich',
-            age: '90',
-            address: '789 Pine Road',
-        },
-        {
-            key: '10',
-            name: 'Aperitivo',
-            age: '90',
-            address: '789 Pine Road',
-        },
-        {
-            key: '11',
-            name: 'Openhauser',
-            age: '22',
-            address: '789 Pine Road',
-        },
-        {
-            key: '12',
-            name: 'sanwich',
-            age: '90',
-            address: '789 Pine Road',
-        },
-    ];
-
+    // const dataSource = [
+    //     {
+    //         key: '1',
+    //         name: 'Mike Wasowski',
+    //         age: '32',
+    //         address: '10 Downing Street',
+    //     },
+    //     {
+    //         key: '2',
+    //         name: 'Mike',
+    //         age: '32',
+    //         address: '10 Downing Street',
+    //     },
+    //     {
+    //         key: '3',
+    //         name: 'mike',
+    //         age: '32',
+    //         address: '10 Downing Street',
+    //     },
+    //     {
+    //         key: '4',
+    //         name: 'mike',
+    //         age: '10',
+    //         address: '123 Elm Street',
+    //     },
+    //     {
+    //         key: '5',
+    //         name: 'Jhossep',
+    //         age: '22',
+    //         address: '456 Oak Avenue',
+    //     },
+    //     {
+    //         key: '6',
+    //         name: 'Jhossep',
+    //         age: '30',
+    //         address: '789 Pine Road',
+    //     },
+    //     {
+    //         key: '7',
+    //         name: 'Ricardo',
+    //         age: '10',
+    //         address: '789 Pine Road',
+    //     },
+    //     {
+    //         key: '8',
+    //         name: 'Mauricio',
+    //         age: '78',
+    //         address: '789 Pine Road',
+    //     },
+    //     {
+    //         key: '9',
+    //         name: 'sanwich',
+    //         age: '90',
+    //         address: '789 Pine Road',
+    //     },
+    //     {
+    //         key: '10',
+    //         name: 'Aperitivo',
+    //         age: '90',
+    //         address: '789 Pine Road',
+    //     },
+    //     {
+    //         key: '11',
+    //         name: 'Openhauser',
+    //         age: '22',
+    //         address: '789 Pine Road',
+    //     },
+    //     {
+    //         key: '12',
+    //         name: 'sanwich',
+    //         age: '90',
+    //         address: '789 Pine Road',
+    //     },
+    // ];
+    //
+    const dataSource = tempData
     const updatedSourceData = validateData(dataSource);
     console.log("updatedSourceData:", updatedSourceData);
 
     return (
-        <div> 
-            <Table columns={columns} dataSource={updatedSourceData}></Table>
-        </div>
+        <ValidatedTable dataSource={dataSource} validators={[validateRepeatedNameAgeErrors, validateJhossepAgeErrors, validateNameCapitalization]} columnNames={columnNames} />
     );
 }
 
