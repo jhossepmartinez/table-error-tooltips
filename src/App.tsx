@@ -24,9 +24,9 @@ const validateDuplicatedNameAge: Validator = (data, indexErrors) => {
         if (seen.has(key)) {
             const firstIndex = seen.get(key)!;
             if (!indexErrors[index]) indexErrors[index] = {}
-            if (!indexErrors[firstIndex]) indexErrors[firstIndex] = {}
             indexErrors[index]["name"] = []
             indexErrors[index]["name"].push("Duplicated record")
+            if (!indexErrors[firstIndex]) indexErrors[firstIndex] = {}
             indexErrors[firstIndex]["name"] = []
             indexErrors[firstIndex]["name"].push("Duplicated record")
             indexErrors[index]["age"] = []
@@ -55,7 +55,6 @@ const validateDuplicatedNameAge: Validator = (data, indexErrors) => {
         } else {
             seen.set(key, index); // Record the index of the first occurrence
         }
-        if (index === data.length - 1) console.log("indexErrors", indexErrors)
 
         // Update the current record
         return updatedData[index] = {
