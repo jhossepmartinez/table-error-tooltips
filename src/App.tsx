@@ -13,7 +13,7 @@ import {  Validator } from './components/types';
 //
 // type Validator = (data: EnrichedDataSource[]) => EnrichedDataSource[];
 
-const validateDuplicatedNameAge: Validator = (data) => {
+const validateDuplicatedNameAge: Validator = (data, indexErrors) => {
     const seen = new Map<string, number>(); // Use a map to track the first occurrence index
     const updatedData = [...data]; // Create a mutable copy of the input array
 
@@ -23,6 +23,16 @@ const validateDuplicatedNameAge: Validator = (data) => {
 
         if (seen.has(key)) {
             const firstIndex = seen.get(key)!;
+            if (!indexErrors[index]) indexErrors[index] = {}
+            if (!indexErrors[firstIndex]) indexErrors[firstIndex] = {}
+            indexErrors[index]["name"] = []
+            indexErrors[index]["name"].push("Duplicated record")
+            indexErrors[firstIndex]["name"] = []
+            indexErrors[firstIndex]["name"].push("Duplicated record")
+            indexErrors[index]["age"] = []
+            indexErrors[index]["age"].push("Duplicated record")
+            indexErrors[firstIndex]["age"] = []
+            indexErrors[firstIndex]["age"].push("Duplicated record")
 
             // Update errors for the first occurrence
             const firstRecord = updatedData[firstIndex];
@@ -45,6 +55,7 @@ const validateDuplicatedNameAge: Validator = (data) => {
         } else {
             seen.set(key, index); // Record the index of the first occurrence
         }
+        if (index === data.length - 1) console.log("indexErrors", indexErrors)
 
         // Update the current record
         return updatedData[index] = {
@@ -55,8 +66,8 @@ const validateDuplicatedNameAge: Validator = (data) => {
 };
 
 // Validator for Jhossep's age
-const validateJhossepAgeErrors: Validator = (data) => {
-    return data.map(record => {
+const validateJhossepAgeErrors: Validator = (data, indexErrors) => {
+    return data.map((record, index) => {
         const errors: Record<string, string[]> = { ...record.errors };
 
         if (record.name === 'Jhossep' && record.age !== '22') {
@@ -64,6 +75,12 @@ const validateJhossepAgeErrors: Validator = (data) => {
             if (!errors.age) errors.age = [];
             errors.name.push("Jhossep needs to be 22");
             errors.age.push("Jhossep needs to be 22");
+
+            if (!indexErrors[index]) indexErrors[index] = {}
+            if (!indexErrors[index]["name"]) indexErrors[index]["name"] = []
+            indexErrors[index]["name"].push("Jhossep needs to be 22")
+            if (!indexErrors[index]["age"]) indexErrors[index]["age"] = []
+            indexErrors[index]["age"].push("Jhossep needs to be 22")
         }
 
         return {
@@ -74,13 +91,16 @@ const validateJhossepAgeErrors: Validator = (data) => {
 };
 
 // Validator for name capitalization
-const validateNameCapitalization: Validator = (data) => {
-    return data.map(record => {
+const validateNameCapitalization: Validator = (data, indexErrors) => {
+    return data.map((record, index) => {
         const errors: Record<string, string[]> = { ...record.errors };
 
         if (record.name && typeof record.name === "string" && record.name[0] !== record.name[0].toUpperCase()) {
             if (!errors.name) errors.name = [];
             errors.name.push("Name needs to be Capitalized");
+            if (!indexErrors[index]) indexErrors[index] = {}
+            if (!indexErrors[index]["name"]) indexErrors[index]["name"] = []
+            indexErrors[index]["name"].push("Name needs to be Capitalized")
         }
 
         return {
@@ -90,19 +110,7 @@ const validateNameCapitalization: Validator = (data) => {
     });
 };
 
-// Combined validation
-// const validateData = (data: EnrichedDataSource[]): EnrichedDataSource[] => {
-//     const validators: Validator[] = [
-//         validateRepeatedNameAgeErrors,
-//         validateJhossepAgeErrors,
-//         validateNameCapitalization,
-//     ];
-//
-//     return validators.reduce((validatedData, validator) => validator(validatedData), data);
-// };
-
 function App() {
-    // const columnNames = ['name', 'age', 'address'];
     const columnProperties = [
         {
             name: "name",
@@ -118,105 +126,7 @@ function App() {
         }
     ]
 
-    // const columns = columnNames.map((name) => ({
-    //     title: name,
-    //     dataIndex: name,
-    //     render: (text: string, record: EnrichedDataSource) => {
-    //         const errors = record.errors && record.errors[name]?.join("\n") || null;
-    //         return (
-    //             <>
-    //                 {text}
-    //                 {" "}
-    //                 { errors && (
-    //                     <Tooltip title={<span style={{ whiteSpace: 'pre-wrap' }}>
-    //                         {errors}
-    //                     </span>}>
-    //                         <CloseCircleOutlined style={{ color: "Red"}} />
-    //                     </Tooltip>
-    //                 ) }
-    //             </>
-    //         );
-    //     }
-    // }));
-
-    // const dataSource = [
-    //     {
-    //         key: '1',
-    //         name: 'Mike Wasowski',
-    //         age: '32',
-    //         address: '10 Downing Street',
-    //     },
-    //     {
-    //         key: '2',
-    //         name: 'Mike',
-    //         age: '32',
-    //         address: '10 Downing Street',
-    //     },
-    //     {
-    //         key: '3',
-    //         name: 'mike',
-    //         age: '32',
-    //         address: '10 Downing Street',
-    //     },
-    //     {
-    //         key: '4',
-    //         name: 'mike',
-    //         age: '10',
-    //         address: '123 Elm Street',
-    //     },
-    //     {
-    //         key: '5',
-    //         name: 'Jhossep',
-    //         age: '22',
-    //         address: '456 Oak Avenue',
-    //     },
-    //     {
-    //         key: '6',
-    //         name: 'Jhossep',
-    //         age: '30',
-    //         address: '789 Pine Road',
-    //     },
-    //     {
-    //         key: '7',
-    //         name: 'Ricardo',
-    //         age: '10',
-    //         address: '789 Pine Road',
-    //     },
-    //     {
-    //         key: '8',
-    //         name: 'Mauricio',
-    //         age: '78',
-    //         address: '789 Pine Road',
-    //     },
-    //     {
-    //         key: '9',
-    //         name: 'sanwich',
-    //         age: '90',
-    //         address: '789 Pine Road',
-    //     },
-    //     {
-    //         key: '10',
-    //         name: 'Aperitivo',
-    //         age: '90',
-    //         address: '789 Pine Road',
-    //     },
-    //     {
-    //         key: '11',
-    //         name: 'Openhauser',
-    //         age: '22',
-    //         address: '789 Pine Road',
-    //     },
-    //     {
-    //         key: '12',
-    //         name: 'sanwich',
-    //         age: '90',
-    //         address: '789 Pine Road',
-    //     },
-    // ];
-    //
     const dataSource = tempData
-    // const updatedSourceData = validateData(dataSource);
-    // console.log("updatedSourceData:", updatedSourceData);
 
     return (
         <ValidatedTable dataSource={dataSource} validators={[validateDuplicatedNameAge, validateJhossepAgeErrors, validateNameCapitalization]} columnProperties={columnProperties} />
